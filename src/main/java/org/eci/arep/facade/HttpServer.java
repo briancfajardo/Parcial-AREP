@@ -110,7 +110,7 @@ public class HttpServer {
                 "        <h1>Reflective ChatGPT</h1>\n" +
                 "        <form action=\"/func\">\n" +
                 "            <label for=\"name\">Método que desea usar:</label><br>\n" +
-                "            <input type=\"text\" id=\"name\" name=\"name\" value=\"java.lang.System, getenv\"><br><br>\n" +
+                "            <input type=\"text\" id=\"name\" name=\"name\" value=\"Class([java.lang.Double])\"><br><br>\n" +
                 "            <input type=\"button\" value=\"Submit\" onclick=\"loadGetMsg()\">\n" +
                 "        </form> \n" +
                 "        <div id=\"getrespmsg\"></div>\n" +

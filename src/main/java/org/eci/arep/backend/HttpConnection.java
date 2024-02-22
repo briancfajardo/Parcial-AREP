@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.*;
 import java.util.ArrayList;
@@ -45,12 +46,15 @@ public class HttpConnection {
                         String comando = inputLine.split("=")[1];
 
                         if(comando.contains("Class")){
-                         comando.replace("([", "");
-                            comando.replace("])", "");
-                            List methods = getAllMethods(comando);
+                            comando = comando.replace("Class([", "");
+                            comando =  comando.replace("]) HTTP/1.1", "");
+                            String methods = responseMethods(getAllMethods(comando));
+                            String fields = responseFieds(getAllFields(comando));
+                            outputLine = responseG(methods, fields);
                         }
-
-                        outputLine = response();
+                        else {
+                            outputLine = response();
+                        }
                     }else{
                         outputLine = error();
                     }
@@ -67,7 +71,23 @@ public class HttpConnection {
 
 
     }
-    public static String responseMethods(List methods){
+    public static String responseMethods(ArrayList<String> methods){
+        String output ="";
+
+        for (String met : methods){
+            output += "<p>Methods: " + met+"</p>\n";
+        }
+        return output;
+    }
+    public static String responseFieds(ArrayList<String> fieds){
+        String output ="";
+
+        for (String met : fieds){
+            output += "<p>Fieds: " + met+"</p>\n";
+        }
+        return output;
+    }
+    public static String responseG(String methods, String fields){
         String output ="HTTP/1.1 200 OK\r\n"
                 + "Content-Type: text/html\r\n"
                 + "\r\n"
@@ -77,9 +97,12 @@ public class HttpConnection {
                 + "<meta charset=\"UTF-8\">\n"
                 + "<title>All good</title>\n"
                 + "</head>\n"
-                + "<body>\n";
-         output +="<h1>All good</h1>\n"
-                + "</body>\n"
+                + "<body>\n"
+                + "<h1>Fields</h1>\n"
+                + fields
+                + "<h1>Methods</h1>\n"
+                + methods
+                +"</body>\n"
                 + "</html>\n";
         return output;
     }
@@ -142,12 +165,24 @@ public class HttpConnection {
         System.out.println("GET DONE");
     }
 
-    public static List getAllMethods(String clazz) throws ClassNotFoundException {
+    public static ArrayList<String> getAllMethods(String clazz) throws ClassNotFoundException {
+        System.out.println("Clase: "+ clazz);
         Class<?> c = Class.forName(clazz);
         Method[] methods= c.getDeclaredMethods();
         ArrayList<String> names = new ArrayList<>();
         for(Method method : methods){
             names.add(method.getName());
+        }
+        return names;
+    }
+
+    public static ArrayList<String> getAllFields(String clazz) throws ClassNotFoundException {
+        System.out.println("Clase: "+ clazz);
+        Class<?> c = Class.forName(clazz);
+        Field[] fields= c.getDeclaredFields();
+        ArrayList<String> names = new ArrayList<>();
+        for(Field field : fields){
+            names.add(field.getName());
         }
         return names;
     }
