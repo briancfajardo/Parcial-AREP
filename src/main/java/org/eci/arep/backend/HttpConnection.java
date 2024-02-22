@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.lang.reflect.Method;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +15,7 @@ public class HttpConnection {
     private static final String USER_AGENT = "Mozilla/5.0";
     private static final String GET_URL = "http://localhost:36000/method=";
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
         ServerSocket serverSocket = null;
         try {
             serverSocket = new ServerSocket(35000);
@@ -41,6 +42,14 @@ public class HttpConnection {
                 System.out.println("Recibí: " + inputLine);
                 if(inputLine.contains("GET")){
                     if(inputLine.contains("compreflex")){
+                        String comando = inputLine.split("=")[1];
+
+                        if(comando.contains("Class")){
+                         comando.replace("([", "");
+                            comando.replace("])", "");
+                            List methods = getAllMethods(comando);
+                        }
+
                         outputLine = response();
                     }else{
                         outputLine = error();
@@ -57,6 +66,22 @@ public class HttpConnection {
         }
 
 
+    }
+    public static String responseMethods(List methods){
+        String output ="HTTP/1.1 200 OK\r\n"
+                + "Content-Type: text/html\r\n"
+                + "\r\n"
+                + "<!DOCTYPE html>\n"
+                + "<html>\n"
+                + "<head>\n"
+                + "<meta charset=\"UTF-8\">\n"
+                + "<title>All good</title>\n"
+                + "</head>\n"
+                + "<body>\n";
+         output +="<h1>All good</h1>\n"
+                + "</body>\n"
+                + "</html>\n";
+        return output;
     }
     public static String response(){
         return "HTTP/1.1 200 OK\r\n"
@@ -117,4 +142,15 @@ public class HttpConnection {
         System.out.println("GET DONE");
     }
 
+    public static List getAllMethods(String clazz) throws ClassNotFoundException {
+        Class<?> c = Class.forName(clazz);
+        Method[] methods= c.getDeclaredMethods();
+        ArrayList<String> names = new ArrayList<>();
+        for(Method method : methods){
+            names.add(method.getName());
+        }
+        return names;
+    }
 }
+
+
